@@ -21,30 +21,31 @@ public class SentinelConfiguration {
 
     public SentinelConfiguration() {
         FlowRule flowRule = new FlowRule();
-        flowRule.setResource("testresource");
+        String resourceName = "testresource";
+        flowRule.setResource(resourceName);
         flowRule.setGrade(RuleConstant.FLOW_GRADE_QPS);
-        flowRule.setCount(3); //max 3 qps
+        flowRule.setCount(50); //max 50 qps
         FlowRuleManager.loadRules(List.of(flowRule));
 
         DegradeRule degradeRule = new DegradeRule();
-        degradeRule.setResource("testresource");
+        degradeRule.setResource(resourceName);
         //RuleConstant.DEGRADE_GRADE_EXCEPTION_RATIO -> degrade wrt ratio of failed requests
         //RuleConstant.DEGRADE_GRADE_EXCEPTION_COUNT -> degrade wrt number of failed requests
         //RuleConstant.DEGRADE_GRADE_RT -> degrade wrt average response time
         degradeRule.setGrade(RuleConstant.DEGRADE_GRADE_EXCEPTION_COUNT);
-        degradeRule.setCount(2); //after two failed requests, degrade rule starts to apply
+        degradeRule.setCount(200); //after 200 failed requests, degrade rule starts to apply
         //degradeRule.setSlowRatioThreshold(0.5);
         degradeRule.setTimeWindow(100); //recovery timeout -> 100 seconds
         DegradeRuleManager.loadRules(List.of(degradeRule));
 
         SystemRule rule = new SystemRule();
-        rule.setResource("testresource");
-        rule.setHighestSystemLoad(10.0);
+        rule.setResource(resourceName);
+        rule.setHighestSystemLoad(2.0);
         rule.setHighestCpuUsage(0.5);
-        rule.setAvgRt(10);
-        rule.setQps(10);
-        rule.setMaxThread(10);
-        //SystemRuleManager.loadRules(List.of(rule));
+        rule.setAvgRt(2000);
+        rule.setQps(25);
+        rule.setMaxThread(1);
+        SystemRuleManager.loadRules(List.of(rule));
     }
 
     @Bean
@@ -54,6 +55,7 @@ public class SentinelConfiguration {
 
     @Bean
     public Converter<String, List<FlowRule>> flowConverter() {
-        return source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {});
+        return source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {
+        });
     }
 }

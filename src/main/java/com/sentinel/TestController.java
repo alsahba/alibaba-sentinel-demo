@@ -19,11 +19,11 @@ public class TestController {
 
     @GetMapping
     public String testIt() throws InterruptedException {
-        IntStream.range(0, 25).mapToObj(this::isOdd).forEach(CompletableFuture::supplyAsync);
+        IntStream.range(0, 400).mapToObj(this::isOdd).forEach(CompletableFuture::supplyAsync);
 
         TimeUnit.SECONDS.sleep(3);
 
-        IntStream.range(25, 50).mapToObj(this::isOdd).forEach(CompletableFuture::supplyAsync);
+        IntStream.range(400, 800).mapToObj(this::isOdd).forEach(CompletableFuture::supplyAsync);
 
         return "over or is it?";
     }
