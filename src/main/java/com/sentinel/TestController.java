@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -20,7 +21,7 @@ public class TestController {
     public String testIt() throws InterruptedException {
         IntStream.range(0, 25).mapToObj(this::isOdd).forEach(CompletableFuture::supplyAsync);
 
-        Thread.sleep(3000);
+        TimeUnit.SECONDS.sleep(3);
 
         IntStream.range(25, 50).mapToObj(this::isOdd).forEach(CompletableFuture::supplyAsync);
 
@@ -28,6 +29,6 @@ public class TestController {
     }
 
     private Supplier<String> isOdd(int number) {
-        return () -> testService.isOdd(number);
+        return () -> String.valueOf(testService.isOdd(number));
     }
 }

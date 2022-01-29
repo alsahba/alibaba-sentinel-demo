@@ -4,21 +4,26 @@ import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 @Service
+@Async(value = "customThreadPool")
 public class TestService {
 
     //Thread-safe logging
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @SentinelResource(value = "testresource", fallback = "fallbackMethod", blockHandler = "blockHandler")
-    public String isOdd(int number) {
+    public CompletableFuture<String> isOdd(int number) {
         sleepForTwoSeconds();
         throwErrorIfNumberIsEven(number);
 
         logger.info("number {} is tested", number);
-        return "number " + number + "is odd";
+        return CompletableFuture.completedFuture("number " + number + " is odd");
     }
 
     //signature must be same as the original method
@@ -29,12 +34,11 @@ public class TestService {
         } else {
             causeOfErr = "unknown error";
         }
-
         logger.error("fallback for: {}", causeOfErr);
         return "fallback";
     }
 
-    //signature must be same as the original method
+    //signature must be same as the original method, catches all block exceptions like Flow, Degrade
     public String blockHandler(int number, BlockException e) {
         logger.error("block handler for rule of: {}, resource: {}",
                 e.getRule().getClass().getSimpleName(), e.getRule().getResource());
@@ -49,7 +53,7 @@ public class TestService {
 
     private void sleepForTwoSeconds() {
         try {
-            Thread.sleep(2000L);
+            TimeUnit.SECONDS.sleep(2);
         } catch (Exception e) {
             logger.error("this thread hates to sleep");
         }
