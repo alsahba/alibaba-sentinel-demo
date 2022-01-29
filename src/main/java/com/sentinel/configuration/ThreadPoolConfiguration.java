@@ -7,8 +7,9 @@ import java.util.concurrent.*;
 @Configuration(value = "customThreadPool")
 public class ThreadPoolConfiguration extends ThreadPoolExecutor {
 
-    //default cached pool config, each thread has an 60 seconds idle lifetime after that they are gone
+    //fixed thread pool configuration with the maximum number of threads is 40 and the queue capacity is 2000
     public ThreadPoolConfiguration() {
-        super(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS, new SynchronousQueue<>());
+        super(40, 40, 60,
+                TimeUnit.SECONDS, new ArrayBlockingQueue<>(2000));
     }
 }
